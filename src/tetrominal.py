@@ -10,7 +10,7 @@ Vector2Like: TypeAlias = Vector2 | Sequence[int | float]
 Rotations: TypeAlias = list[list[Vector2Like]]
 
 
-class PyTetris:
+class Game:
     def __init__(self, grid_size: Vector2Like, key_bindings: dict) -> None:
         self.board: Grid = Grid(grid_size[0], grid_size[1], default=0)
         self.shapes: list[Tetromino] = self._create_tetrominoes()

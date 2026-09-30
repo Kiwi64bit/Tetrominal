@@ -1,9 +1,9 @@
 import curses
-from src.pytetris import PyTetris
+from src.tetrominal import Game
 
 
 def main(stdscr: curses.window) -> None:
-    py_tetris: PyTetris = PyTetris(
+    game: Game = Game(
             grid_size=(10, 20),
             key_bindings={
                     curses.KEY_LEFT : 'left',
@@ -12,7 +12,7 @@ def main(stdscr: curses.window) -> None:
                     curses.KEY_DOWN : 'soft_drop',
             },
     )
-    py_tetris.main(stdscr)
+    game.main(stdscr)
 
 
 if __name__ == '__main__':

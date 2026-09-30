@@ -13,7 +13,7 @@ Rotations: TypeAlias = list[list[Vector2Like]]
 class PyTetris:
     def __init__(self, grid_size: Vector2Like, key_bindings: dict) -> None:
         self.board: Grid = Grid(grid_size[0], grid_size[1], default=0)
-        self.shapes: list[Tetromino] = self._create_tetrominos()
+        self.shapes: list[Tetromino] = self._create_tetrominoes()
         self.bag: ShuffleBag = ShuffleBag(self.shapes)
         self.active: Tetromino = self.spawn_piece()
         self.key_bindings: dict = key_bindings
@@ -31,7 +31,7 @@ class PyTetris:
         self.paused: bool = False
 
     @staticmethod
-    def _create_tetrominos() -> list[Tetromino]:
+    def _create_tetrominoes() -> list[Tetromino]:
         return [
                 Tetromino(
                         'I', [

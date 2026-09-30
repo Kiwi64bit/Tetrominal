@@ -3,7 +3,7 @@ import time
 from typing import Sequence, TypeAlias
 from src.vector2 import Vector2
 from src.grid import Grid
-from src.random_generator import RandomBag
+from src.randomizers.shuffle_bag import ShuffleBag
 from src.tetromino import Tetromino
 
 Vector2Like: TypeAlias = Vector2 | Sequence[int | float]
@@ -14,7 +14,7 @@ class PyTetris:
     def __init__(self, grid_size: Vector2Like, key_bindings: dict) -> None:
         self.board: Grid = Grid(grid_size[0], grid_size[1], default=0)
         self.shapes: list[Tetromino] = self._create_tetrominos()
-        self.bag: RandomBag = RandomBag(self.shapes)
+        self.bag: ShuffleBag = ShuffleBag(self.shapes)
         self.active: Tetromino = self.spawn_piece()
         self.key_bindings: dict = key_bindings
         self.actions: dict = {

@@ -128,14 +128,14 @@ class PyTetris:
     def lock(self) -> None:
         for block in self.active.rotation:
             x, y = block + self.active.pos
-            self.board.set(x, y, self.active.char)
+            self.board[x, y] = self.active.char
 
     def clear_lines(self) -> int:
-        new_data: list[list[int]] = [row for row in self.board.data if any(cell == self.board.default for cell in row)]
+        new_data: list[list[int]] = [row for row in self.board.data if any(cell == 0 for cell in row)]
         cleared_lines: int = self.board.height - len(new_data)
 
         for _ in range(cleared_lines):
-            new_data.insert(0, [self.board.default] * self.board.width)
+            new_data.insert(0, [0] * self.board.width)
 
         self.board.data = new_data
         return cleared_lines
@@ -147,7 +147,7 @@ class PyTetris:
     def is_valid_state(self, active: Tetromino) -> bool:
         for block in active.rotation:
             x, y = block + active.pos
-            if not self.board.is_inside(x, y) or not self.board.is_empty(x, y):
+            if not self.board.is_inside(x, y) or self.board[x, y] != 0:
                 return False
         return True
 
@@ -177,13 +177,13 @@ class PyTetris:
         # locked cells
         for y in range(self.board.height):
             for x in range(self.board.width):
-                buffer.set(x, y, '[]' if self.board.get(x, y) != 0 else '  ')
+                buffer[x, y] = '[]' if self.board[x, y] != 0 else '  '
 
         # active piece
         for block in self.active.rotation:
             x, y = block + self.active.pos
             if self.board.is_inside(x, y):
-                buffer.set(x, y, '[]')
+                buffer[x, y] = '[]'
 
         stdscr.erase()
 

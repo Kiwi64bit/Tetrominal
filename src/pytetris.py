@@ -33,39 +33,53 @@ class PyTetris:
     @staticmethod
     def _create_tetrominos() -> list[Tetromino]:
         return [
-                Tetromino('I', [
-                        [(-1, 0), (0, 0), (1, 0), (2, 0)],  # horizontal
-                        [(0, -1), (0, 0), (0, 1), (0, 2)],  # vertical
-                ]),
-                Tetromino('O', [
-                        [(0, 0), (1, 0), (0, 1), (1, 1)],  # square
-                ]),
-                Tetromino('T', [
-                        [(-1, 0), (0, 0), (1, 0), (0, -1)],  # up
-                        [(0, -1), (0, 0), (0, 1), (1, 0)],  # right
-                        [(1, 0), (0, 0), (-1, 0), (0, 1)],  # down
-                        [(0, 1), (0, 0), (0, -1), (-1, 0)],  # left
-                ]),
-                Tetromino('S', [
-                        [(1, 0), (0, 0), (0, 1), (-1, 1)],  # horizontal
-                        [(0, 1), (0, 0), (-1, 0), (-1, -1)],  # vertical
-                ]),
-                Tetromino('Z', [
-                        [(-1, 0), (0, 0), (0, 1), (1, 1)],  # horizontal
-                        [(0, -1), (0, 0), (-1, 0), (-1, 1)],  # vertical
-                ]),
-                Tetromino('J', [
-                        [(-1, -1), (-1, 0), (0, 0), (1, 0)],  # up
-                        [(1, -1), (0, -1), (0, 0), (0, 1)],  # right
-                        [(1, 1), (1, 0), (0, 0), (-1, 0)],  # down
-                        [(-1, 1), (0, 1), (0, 0), (0, -1)],  # left
-                ]),
-                Tetromino('L', [
-                        [(-1, 0), (0, 0), (1, 0), (1, -1)],  # up
-                        [(0, -1), (0, 0), (0, 1), (1, 1)],  # right
-                        [(1, 0), (0, 0), (-1, 0), (-1, 1)],  # down
-                        [(0, 1), (0, 0), (0, -1), (-1, -1)],  # left
-                ]),
+                Tetromino(
+                        'I', [
+                                [(-1, 0), (0, 0), (1, 0), (2, 0)],  # horizontal
+                                [(0, -1), (0, 0), (0, 1), (0, 2)],  # vertical
+                        ],
+                ),
+                Tetromino(
+                        'O', [
+                                [(0, 0), (1, 0), (0, 1), (1, 1)],  # square
+                        ],
+                ),
+                Tetromino(
+                        'T', [
+                                [(-1, 0), (0, 0), (1, 0), (0, -1)],  # up
+                                [(0, -1), (0, 0), (0, 1), (1, 0)],  # right
+                                [(1, 0), (0, 0), (-1, 0), (0, 1)],  # down
+                                [(0, 1), (0, 0), (0, -1), (-1, 0)],  # left
+                        ],
+                ),
+                Tetromino(
+                        'S', [
+                                [(1, 0), (0, 0), (0, 1), (-1, 1)],  # horizontal
+                                [(0, 1), (0, 0), (-1, 0), (-1, -1)],  # vertical
+                        ],
+                ),
+                Tetromino(
+                        'Z', [
+                                [(-1, 0), (0, 0), (0, 1), (1, 1)],  # horizontal
+                                [(0, -1), (0, 0), (-1, 0), (-1, 1)],  # vertical
+                        ],
+                ),
+                Tetromino(
+                        'J', [
+                                [(-1, -1), (-1, 0), (0, 0), (1, 0)],  # up
+                                [(1, -1), (0, -1), (0, 0), (0, 1)],  # right
+                                [(1, 1), (1, 0), (0, 0), (-1, 0)],  # down
+                                [(-1, 1), (0, 1), (0, 0), (0, -1)],  # left
+                        ],
+                ),
+                Tetromino(
+                        'L', [
+                                [(-1, 0), (0, 0), (1, 0), (1, -1)],  # up
+                                [(0, -1), (0, 0), (0, 1), (1, 1)],  # right
+                                [(1, 0), (0, 0), (-1, 0), (-1, 1)],  # down
+                                [(0, 1), (0, 0), (0, -1), (-1, -1)],  # left
+                        ],
+                ),
         ]
 
     def tick(self) -> None:
@@ -131,7 +145,8 @@ class PyTetris:
             self.board[x, y] = self.active.char
 
     def clear_lines(self) -> int:
-        new_data: list[list[int]] = [row for row in self.board.data if any(cell == 0 for cell in row)]
+        new_data: list[list[int]] = [row for row in self.board.data if
+                                     any(cell == 0 for cell in row)]
         cleared_lines: int = self.board.height - len(new_data)
 
         for _ in range(cleared_lines):
@@ -195,11 +210,23 @@ class PyTetris:
         stdscr.addstr(buffer.height + 2, 1, f'Score: {self.score}\n')
 
         if self.game_over:
-            stdscr.addstr(buffer.height + 4, 1, 'GAME OVER! Press Space to exit.')
+            stdscr.addstr(
+                    buffer.height + 4,
+                    1,
+                    'GAME OVER! Press Space to exit.',
+            )
         elif self.paused:
-            stdscr.addstr(buffer.height + 4, 1, 'Press Q to exit, or P to unpause.')
+            stdscr.addstr(
+                    buffer.height + 4,
+                    1,
+                    'Press Q to exit, or P to unpause.',
+            )
         else:
-            stdscr.addstr(buffer.height + 4, 1, 'Press Q to exit, or P to pause.')
+            stdscr.addstr(
+                    buffer.height + 4,
+                    1,
+                    'Press Q to exit, or P to pause.',
+            )
 
         stdscr.refresh()
 

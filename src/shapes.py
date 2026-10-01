@@ -1,4 +1,5 @@
 from enum import IntEnum, auto
+from typing import TypedDict
 
 
 class PieceType(IntEnum):
@@ -12,12 +13,38 @@ class PieceType(IntEnum):
     Z = auto()
 
 
-SHAPES: dict[PieceType, list[tuple[float, float]]] = {
-        PieceType.I: [(-1.5, -0.5), (-0.5, -0.5), (0.5, -0.5), (1.5, -0.5)],
-        PieceType.J: [(-1, -1), (-1, 0), (0, 0), (1, 0)],
-        PieceType.L: [(-1, 0), (0, 0), (1, 0), (1, 1)],
-        PieceType.O: [(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)],
-        PieceType.S: [(-1, 0), (0, 0), (0, -1), (1, -1)],
-        PieceType.T: [(-1, 0), (0, 0), (0, -1), (1, 0)],
-        PieceType.Z: [(-1, -1), (0, -1), (0, 0), (1, 0)],
+class Shape(TypedDict):
+    blocks: list[tuple[float, float]]
+    origin: tuple[float, float]
+
+
+SHAPES: dict[PieceType, Shape] = {
+        PieceType.I: Shape(
+                blocks=[(-1, 0), (0, 0), (1, 0), (2, 0)],
+                origin=(0.5, 0.5),
+        ),
+        PieceType.J: Shape(
+                blocks=[(-1, -1), (-1, 0), (0, 0), (1, 0)],
+                origin=(0, 0),
+        ),
+        PieceType.L: Shape(
+                blocks=[(-1, 0), (0, 0), (1, 0), (1, -1)],
+                origin=(0, 0),
+        ),
+        PieceType.O: Shape(
+                blocks=[(0, 0), (1, 0), (1, 1), (0, 1)],
+                origin=(0.5, 0.5),
+        ),
+        PieceType.S: Shape(
+                blocks=[(-1, 0), (0, 0), (0, -1), (1, -1)],
+                origin=(0, 0),
+        ),
+        PieceType.T: Shape(
+                blocks=[(-1, 0), (0, 0), (0, -1), (1, 0)],
+                origin=(0, 0),
+        ),
+        PieceType.Z: Shape(
+                blocks=[(-1, -1), (0, -1), (0, 0), (1, 0)],
+                origin=(0, 0),
+        ),
 }

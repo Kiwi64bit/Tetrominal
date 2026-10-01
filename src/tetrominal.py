@@ -1,6 +1,5 @@
 import curses
 import time
-from math import floor
 from typing import Sequence
 
 from src.vector2 import Vector2
@@ -95,13 +94,13 @@ class Game:
     def spawn_piece(self) -> Tetromino:
         piece: Tetromino = self.bag.next()
         piece.reset()
-        piece.pos = Vector2(self.board.width // 2, 1)
+        piece.pos = Vector2(self.board.width // 2 - 1, 1)
         return piece
 
     def lock(self) -> None:
-        for block in self.active.shape:
+        for block in self.active.blocks:
             x, y = block + self.active.pos
-            x, y = floor(x), floor(y)
+            x, y = int(x), int(y)
             self.board[x, y] = self.active.type.value
 
     def clear_lines(self) -> int:
@@ -120,9 +119,9 @@ class Game:
         return {1: 40, 2: 100, 3: 300, 4: 1200}.get(cleared_lines, 0)
 
     def is_valid_state(self) -> bool:
-        for block in self.active.shape:
+        for block in self.active.blocks:
             x, y = block + self.active.pos
-            x, y = floor(x), floor(y)
+            x, y = int(x), int(y)
             if not self.board.is_inside(x, y) or self.board[x, y] != 0:
                 return False
         return True
@@ -156,9 +155,9 @@ class Game:
                 buffer[x, y] = '[]' if self.board[x, y] != 0 else '  '
 
         # active piece
-        for block in self.active.shape:
+        for block in self.active.blocks:
             x, y = block + self.active.pos
-            x, y = floor(x), floor(y)
+            x, y = int(x), int(y)
             if self.board.is_inside(x, y):
                 buffer[x, y] = '[]'
 

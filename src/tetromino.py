@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from src.vector2 import Vector2
-from src.shapes import SHAPES, PieceType
+from src.shapes import PieceType, Shape, SHAPES
 
 
 class Tetromino:
@@ -12,12 +12,16 @@ class Tetromino:
     ) -> None:
         self.type: PieceType = piece_type
         self.pos: Vector2 = Vector2(pos)
-        self.original: list[tuple[float, float]] = SHAPES[self.type]
-        self.shape: list[Vector2] = []
+        self.shape: Shape = SHAPES[self.type]
+        self.origin: Vector2 = Vector2(self.shape['origin'])
+        self.blocks: list[Vector2] = []
         self.reset()
 
     def rotate(self) -> 'Tetromino':
-        self.shape = [block.rotate_90() for block in self.shape]
+        self.blocks = [
+                ((block - self.origin).rotate_90() + self.origin)
+                for block in self.blocks
+        ]
         return self
 
     def move(self, dx: int, dy: int) -> 'Tetromino':
@@ -25,5 +29,5 @@ class Tetromino:
         return self
 
     def reset(self) -> 'Tetromino':
-        self.shape = [Vector2(block) for block in self.original]
+        self.blocks = [Vector2(block) for block in self.shape['blocks']]
         return self

@@ -1,20 +1,24 @@
 import curses
 import time
-from typing import Sequence, TypeAlias
+from math import floor
+from typing import Sequence
+
 from src.vector2 import Vector2
 from src.grid import Grid
 from src.randomizers.shuffle_bag import ShuffleBag
 from src.tetromino import Tetromino
-
-Vector2Like: TypeAlias = Vector2 | Sequence[int | float]
-Rotations: TypeAlias = list[list[Vector2Like]]
+from src.shapes import PieceType
 
 
 class Game:
-    def __init__(self, grid_size: Vector2Like, key_bindings: dict) -> None:
-        self.board: Grid = Grid(grid_size[0], grid_size[1], default=0)
-        self.shapes: list[Tetromino] = self._create_tetrominoes()
-        self.bag: ShuffleBag = ShuffleBag(self.shapes)
+    def __init__(self, grid_size: Sequence[int], key_bindings: dict) -> None:
+        self.board: Grid = Grid(
+                grid_size[0],
+                grid_size[1],
+                default=PieceType.EMPTY.value,
+        )
+        self.tetrominoes: list[Tetromino] = self._create_tetrominoes()
+        self.bag: ShuffleBag = ShuffleBag(self.tetrominoes)
         self.active: Tetromino = self.spawn_piece()
         self.key_bindings: dict = key_bindings
         self.actions: dict = {
@@ -32,55 +36,8 @@ class Game:
 
     @staticmethod
     def _create_tetrominoes() -> list[Tetromino]:
-        return [
-                Tetromino(
-                        'I', [
-                                [(-1, 0), (0, 0), (1, 0), (2, 0)],  # horizontal
-                                [(0, -1), (0, 0), (0, 1), (0, 2)],  # vertical
-                        ],
-                ),
-                Tetromino(
-                        'O', [
-                                [(0, 0), (1, 0), (0, 1), (1, 1)],  # square
-                        ],
-                ),
-                Tetromino(
-                        'T', [
-                                [(-1, 0), (0, 0), (1, 0), (0, -1)],  # up
-                                [(0, -1), (0, 0), (0, 1), (1, 0)],  # right
-                                [(1, 0), (0, 0), (-1, 0), (0, 1)],  # down
-                                [(0, 1), (0, 0), (0, -1), (-1, 0)],  # left
-                        ],
-                ),
-                Tetromino(
-                        'S', [
-                                [(1, 0), (0, 0), (0, 1), (-1, 1)],  # horizontal
-                                [(0, 1), (0, 0), (-1, 0), (-1, -1)],  # vertical
-                        ],
-                ),
-                Tetromino(
-                        'Z', [
-                                [(-1, 0), (0, 0), (0, 1), (1, 1)],  # horizontal
-                                [(0, -1), (0, 0), (-1, 0), (-1, 1)],  # vertical
-                        ],
-                ),
-                Tetromino(
-                        'J', [
-                                [(-1, -1), (-1, 0), (0, 0), (1, 0)],  # up
-                                [(1, -1), (0, -1), (0, 0), (0, 1)],  # right
-                                [(1, 1), (1, 0), (0, 0), (-1, 0)],  # down
-                                [(-1, 1), (0, 1), (0, 0), (0, -1)],  # left
-                        ],
-                ),
-                Tetromino(
-                        'L', [
-                                [(-1, 0), (0, 0), (1, 0), (1, -1)],  # up
-                                [(0, -1), (0, 0), (0, 1), (1, 1)],  # right
-                                [(1, 0), (0, 0), (-1, 0), (-1, 1)],  # down
-                                [(0, 1), (0, 0), (0, -1), (-1, -1)],  # left
-                        ],
-                ),
-        ]
+        return [Tetromino(piece_type) for piece_type in PieceType if
+                piece_type != PieceType.EMPTY]
 
     def tick(self) -> None:
         now: float = time.monotonic()
@@ -95,34 +52,38 @@ class Game:
         cleared_lines: int = self.clear_lines()
         self.score += self.calculate_score(cleared_lines)
         self.active = self.spawn_piece()
-        if not self.is_valid_state(self.active):
+        if not self.is_valid_state():
             self.handle_game_over()
 
     def handle_game_over(self) -> None:
         self.game_over = True
 
-    def _move(self, dx: int, dy: int) -> bool:
-        if self.is_valid_state(self.active.move(dx, dy)):
+    def move(self, dx: int, dy: int) -> bool:
+        self.active.move(dx, dy)
+        if self.is_valid_state():
             return True
         self.active.move(-dx, -dy)
         return False
 
     def move_down(self) -> bool:
-        return self._move(0, 1)
+        return self.move(0, 1)
 
     def move_up(self) -> bool:
-        return self._move(0, -1)
+        return self.move(0, -1)
 
     def move_left(self) -> bool:
-        return self._move(-1, 0)
+        return self.move(-1, 0)
 
     def move_right(self) -> bool:
-        return self._move(1, 0)
+        return self.move(1, 0)
 
     def rotate(self) -> bool:
-        if self.is_valid_state(self.active.rotate()):
+        self.active.rotate()
+        if self.is_valid_state():
             return True
-        self.active.rotate(-1)
+        self.active.rotate()
+        self.active.rotate()
+        self.active.rotate()
         return False
 
     def soft_drop(self) -> bool:
@@ -133,16 +94,15 @@ class Game:
 
     def spawn_piece(self) -> Tetromino:
         piece: Tetromino = self.bag.next()
-        piece.pos = Vector2(self.board.width // 2, 0)
-        margins: dict[str, int] = piece.get_margins()
-        y_shift: int = -margins['y_min']
-        piece.pos += Vector2(0, y_shift)
+        piece.reset()
+        piece.pos = Vector2(self.board.width // 2, 1)
         return piece
 
     def lock(self) -> None:
-        for block in self.active.rotation:
+        for block in self.active.shape:
             x, y = block + self.active.pos
-            self.board[x, y] = self.active.char
+            x, y = floor(x), floor(y)
+            self.board[x, y] = self.active.type.value
 
     def clear_lines(self) -> int:
         new_data: list[list[int]] = [row for row in self.board.data if
@@ -159,9 +119,10 @@ class Game:
     def calculate_score(cleared_lines: int) -> int:
         return {1: 40, 2: 100, 3: 300, 4: 1200}.get(cleared_lines, 0)
 
-    def is_valid_state(self, active: Tetromino) -> bool:
-        for block in active.rotation:
-            x, y = block + active.pos
+    def is_valid_state(self) -> bool:
+        for block in self.active.shape:
+            x, y = block + self.active.pos
+            x, y = floor(x), floor(y)
             if not self.board.is_inside(x, y) or self.board[x, y] != 0:
                 return False
         return True
@@ -195,8 +156,9 @@ class Game:
                 buffer[x, y] = '[]' if self.board[x, y] != 0 else '  '
 
         # active piece
-        for block in self.active.rotation:
+        for block in self.active.shape:
             x, y = block + self.active.pos
+            x, y = floor(x), floor(y)
             if self.board.is_inside(x, y):
                 buffer[x, y] = '[]'
 
